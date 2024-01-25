@@ -3,8 +3,10 @@ import './employers-list.css';
 
 const EmployersList = ({data}) => {
     const elements = data.map(info => {
+        const {id, ...infoProps} = info;
+
         return (
-            <EmployersListItem {...info}></EmployersListItem>
+            <EmployersListItem key={id} {...infoProps}></EmployersListItem>
         )
     })
     return (
