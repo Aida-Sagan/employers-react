@@ -34,7 +34,9 @@ class App extends Component {
                     rise: false,
                     id: 3,
                 },
-            ]
+            ],
+            term: '',
+            filter: 'all',
         }
         this.maxId = 4;
     }
@@ -93,25 +95,57 @@ class App extends Component {
         }) )
     }
 
+    searchEmp = (items, term) => {
+        //строка отображающая поиск ничего не содержит
+        if(term.length === 0) {
+            return items;
+        }
+
+        return items.filter(item => {
+            //кусок строки item.name находим
+            return item.name.indexOf(term) > -1
+        })
+    }
+
+    onUpdateSearch = (term) => {
+        this.setState({term});
+    }
+
+    filterSelected = (items, filter) => {
+        switch(filter){
+            case 'rise':
+                return items.filter(item => item.rise);
+            case 'morethan1000':
+                return items.filter(item => item.salary > 1000);
+            default:
+                return items;
+        }
+    }
+
+    onFilter = (filter) =>{
+        this.setState({filter});
+    }
+
     render() {
+        const {data, term, filter} = this.state;
         const employees = this.state.data.length;
         const increased = this.state.data.filter(item => item.increase).length;
-
-        const {data} = this.state;
+        const visibleData = this.filterSelected(this.searchEmp(data, term), filter);
 
         return (
             <div className="app">
                 <AppInfo employees={employees} increased={increased}></AppInfo>
 
                 <div className="search-panel">
-                    <SearchPanel></SearchPanel>
-                    <AppFilter></AppFilter>
+                    <SearchPanel onUpdateSearch={this.onUpdateSearch}></SearchPanel>
+                    <AppFilter filter={filter} onFilter={this.onFilter}></AppFilter>
                 </div>
 
-                <EmployersList data={data}
+                <EmployersList
+                                data={visibleData}
                                onDelete={this.deleteItem}
-                onToggleIncrease={this.onToggleIncrease}
-                onToggleRise={this.onToggleRise}></EmployersList>
+                                onToggleIncrease={this.onToggleIncrease}
+                                onToggleRise={this.onToggleRise}></EmployersList>
 
                 <EmployersAddForm onAdd={this.addPerson}></EmployersAddForm>
             </div>
